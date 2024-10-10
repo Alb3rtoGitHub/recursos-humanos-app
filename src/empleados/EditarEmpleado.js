@@ -1,14 +1,18 @@
 import axios from 'axios';
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
-export default function AgregarEmpleado() {
+export default function EditarEmpleado() {
+    const urlBase = "http://localhost:8080/rh-app/empleados";
+
     let navegacion = useNavigate();
 
+    const { id } = useParams();
+
     const [empleado, setEmpleado] = useState({
-        nombre: '',
-        departamento: '',
-        sueldo: ''
+        nombre: "",
+        departamento: "",
+        sueldo: ""
     })
 
     const { nombre, departamento, sueldo } = empleado;
@@ -18,18 +22,26 @@ export default function AgregarEmpleado() {
         setEmpleado({...empleado, [e.target.name]: e.target.value})
     }
 
-    const onSubmit = async (e) => { 
+    useEffect(() => {
+        cargarEmpleado();
+    }, [])
+
+    const cargarEmpleado = async () => {
+        const resultado = await axios.get(`${urlBase}/${id}`)
+        setEmpleado(resultado.data);
+    }
+
+    const onSubmit = async (e) => {
         e.preventDefault();
-        const urlBase = "http://localhost:8080/rh-app/empleados";
-        await axios.post(urlBase, empleado);
+        await axios.put(`${urlBase}/${id}`, empleado);
         // Redirigimos a la página de inicio
         navegacion('/');
-     }
-    
+    }
+
   return (
       <div classNameName='container'>
           <div className='container text-center' style={{ margin: "30px" }}>
-              <h3>Agregar Empleado</h3>
+              <h3>Editar Empleado</h3>
           </div>
           <form onSubmit={(e) => onSubmit(e)}>
               <div className="mb-3">
@@ -42,11 +54,11 @@ export default function AgregarEmpleado() {
               </div>
               <div className="mb-3">
                   <label htmlFor="sueldo" className="form-label">Sueldo</label>
-                  <input type="number" step="any" className="form-control" id="sueldo" name='sueldo' value={sueldo} onChange={(e) => onInputChange(e)}/>
+                  <input type="number" step="any" className="form-control" id="sueldo" name='sueldo' value={sueldo} onChange={(e) => onInputChange(e)} />
               </div>
               <div className='text-center'>
-                <button type="submit" className="btn btn-warning btn-sm me-3">Agregar</button>
-                <a href='/' className='btn btn-danger btn-sm'>Regresar</a>
+                  <button type="submit" className="btn btn-warning btn-sm me-3">Guardar</button>
+                  <a href='/' className='btn btn-danger btn-sm'>Regresar</a>
               </div>
           </form>
       </div>
